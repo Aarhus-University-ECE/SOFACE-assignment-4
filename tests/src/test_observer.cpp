@@ -11,19 +11,22 @@ TEST_CASE("Observers")
 {
     Keeper keeper;
 
-    std::vector<Animal *> animals{&Monkey(), &Tiger(), &Fish()};
+    Monkey m;
+    Tiger t;
+    Fish f;
+    std::vector<Animal *> animals{&m, &t, &f};
 
     AnimalRightsGroup peta(1, 1, 1);
     Observer *obs = &peta;
 
-    for (Animal *animal : animals)
+    for (auto animal : animals)
     {
         animal->attach(&peta);
     }
 
     REQUIRE(!peta.animals_ok());
 
-    for (Animal *animal : animals)
+    for (auto animal : animals)
     {
         animal->accept(keeper);
     }

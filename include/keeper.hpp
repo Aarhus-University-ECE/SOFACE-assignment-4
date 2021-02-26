@@ -7,8 +7,8 @@ class Keeper : public Visitor
 {
 public:
     virtual void visit(Monkey &monkey) override;
-    virtual void visit(Tiger &monkey) override;
-    virtual void visit(Fish &monkey) override;
+    virtual void visit(Tiger &tiger) override;
+    virtual void visit(Fish &fish) override;
     virtual ~Keeper(){};
 };
 
