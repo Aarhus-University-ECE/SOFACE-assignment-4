@@ -1,176 +1,75 @@
-# 270191U025-Software-Architecture-assignment-template
+# 270191U025-Software-Architecture-assignment-4
 
-## Meta Information To Instructors (REMOVE THIS FROM ASSIGNMENT)
+In the lecture several design patterns were introduced. You have already used one these in the previous exercise when injecting the log object into the calculator. This is in fact a _strategy_ pattern which is a very commonly used pattern.
 
-This repository contains a template for C++ based assignements in the 'Software Architecture' course.
-The template provides a CMake-based build system that makes it easy that makes it easy to build and test the students code.
+Today's exercise covers two new patterns; the _visitor_ pattern and the _observer_ pattern.
 
-The intention is to use this template as the seed project to several other repos, specifically one for each assignment in the course.
-An assignement in GitHub classroom provides the students with the appropriate files.
+<div>
+<img src="docs/monkey.jpg" height=400>
+<img src="docs/zoo_keeper.jpg" height=400>
+<div>
 
-To detect tampering with the grading file calculate the md5 checksum. The most portable way of doing this is using python:
+## Visitor Pattern
 
-```bash
-python -c "import hashlib; print(hashlib.md5(open('autograde.py','rb').read()).hexdigest())"
+The intent of the visitor pattern is to decouple an algorithm from the data structure it operates on. We use the example of a _zoo_ to elaborate this. A zoo houses several animals see each with concrete operations that are relevant only for the specific animals. In the context of the pattern these animals are the _data structure_ which is acted on by the algorithm.
+
+<div>
+<img src="docs/animals.svg">
+</div>
+
+Keeping the animals fit and healthy requires that a zoo _keeper_ visits these animals to take care of needs on a daily basis. The keeper is in this case the algorithm which acts upon the data structure by feeding, scratching backs, etc.
+
+In the following parts we will implement the classes just described.
+
+<div>
+<img src="docs/visitor.svg">
+</div>
+
+1. Examine the `test_animals.cpp` test case
+   - make sure that you understand the relation between the `accept` and `visit` methods
+2. Implement the `accept` method of the `Monkey`, `Tiger` and `Fish` class. This should call the visit method of the visitor with an concrete instance of an animal. Hint, use `this` keyword.
+
+```python
+    # do double-dispatch like this
+    visitor.visit(this);
 ```
 
-The md5 checksum should be: `3fb245f0f15bf8b4aeb34e9b5adc1289` -- if it is not then the file has been modified, which may or may not be intentional.
+3. Re-run the test to verify that the first section of the test is passing
+4. Implement the `Tourist` class
+   - Implement the `visit` method(s) of the `Tourist` class. Whenever visiting an animal this should add store the name of the lower-case name of the animal in the vector `visited`
+5. Re-run the test to verify the second section of the test is passing
 
-## Assignment
+## Observer Pattern
 
-In this exercise you will:
+Our zoo has been attracting unwanted media attention; tourist have fed the monkeys, keepers have forgotten to scratch the tigers backs.
+To avoid further media attention we must keep track of who visits the animals and what actions they perform.
 
-1. [Preliminaries; Installing Dependencies](#Dependencies)
-2. [Install and familiarize yourself with Git](#Familiarize-youself-with-Git)
-3. [Examine the Repository Template](#Repository-Structure)
-4. [Automatic Grading](#Test-Suite-and-Grading)
-5. [Correct Code]()
-6. [Run Automatic Grading Script]()
+<div>
+<img src="docs/observer.svg">
+</div>
 
-### Dependencies
+This is a perfect situation to use an _observer_ pattern. In this case we consider the animals subjects and implement an observer _AnimalRightsGroup_.
+The animal rights group monitors the animals to see that the zoo treats all animals according to their needs.
 
-The project template and associated script dependes on the following programs being installed and added to your systems path variable.
-In practical terms this means that the program can be located from the command line.
-The easiest way to check whether a program is in the systems path is to attempt launching it from the command line.
+1. Examine the `test_observers.cpp` test case
+2. Implement the `attach` and `detach` method of the `Subject` class
+   - attach should add a pointer to an `Observer` to the `subscribers` vector
+   - detach should remove the pointer
+3. Implement the `notify` method of the `Subject` class. This should call the `update` method of every subscriber, like in the pseudo code below:
 
-For example to check if the python interpreter is installed:
+   ```python
+   for s in subscribers:
+       s.update(event)
+   ```
 
-```bash
-python
-```
+4. Implement the `feed_banana`, `scratch_back` and `clean_teeth` method of the `Monkey`, `Tiger` and `Fish` class. These should invoke the `notify` function with the appropriate event, for example:
+   ```cpp
+   void Monkey::feedBanana(visitor &v)
+   {
+       notify(AnimalEvent::monkeyFed);
+   }
+   ```
+5. Implement the `update` method of the `AnimalRightsGroup`. Depending on the type of event recieved this should update the number of times the animals have been fed, scratched, etc.
+   Seek inspiration from the `animals_ok` method.
 
-Make sure the following programs are installed and can be accessed from the systems path:
-
-- C/C++ compiler such as [gcc](https://gcc.gnu.org/), [msvc](https://visualstudio.microsoft.com/vs/features/cplusplus/) or [clang](https://clang.llvm.org/)
-- [CMake](https://cmake.org/)
-- [Python](https://www.python.org/)
-- [Git](https://git-scm.com/downloads)
-- [Clang-Tidy*](https://clang.llvm.org/extra/clang-tidy/)
-- [CppCheck*](http://cppcheck.sourceforge.net/)
-- [Valgrind*](https://valgrind.org/)
-
-On Ubuntu you can install these using:
-
-```
-sudo apt install build-essential cmake python3 git clang-tidy cppcheck python3
-```
-
-You may install an CMake integration in VSCode that makes it easier to build and debug you code.
-The 'CMake' and 'CMake Tools' are recommended.
-
-![](cmake.png)
-
-**There are many ways to install these and often the preferred way depends on the particular OS. The most general advice is reading the install instructions found at their respective webpages.**
-
-### Familiarize youself with Git
-
-Git is a version control system that is used extensively in software development, that allows you to store code while maintaining a history of changes made previously.
-GitHub is a popular service that hosts repositories and provides additional services.
-
-The first part of this exercise is to install and familiarize yourself with git to a point where you can download the assignment template and subsequently submit the finished assignment through Git.
-There are countless guides online on how to install and use Git, one of them being:
-
-- [Text Based Guide](https://guides.github.com/introduction/git-handbook/)
-
-- [Video](https://www.youtube.com/watch?v=SWYqp7iY_Tc)
-
-Clone the repository and code away. Focus on the basic commands: `clone`, `commit`, `pull`, and `push`.
-
-### Repository Structure
-
-For assignment you are provided a set of files that help you get started with the assignment.
-
-The files are:
-
-1. CMakeLists.txt: build script similar to a makefile, but cross-platform
-2. autograde.py: python script for building and grading your submission
-3. .gitignore: defines which types of files should not be tracked by Git
-
-Source and header files are stored in the respective folders:
-
-1. include: Contains C++ header files
-2. src: include C++ source files
-
-### Test-Suite and Grading
-
-A central goal of this course is to improve your ability to write high quality and 'correct' code. Part of this effort is an increased emphasis on systematic testing.
-
-For each exercise you are provided a set of unit tests as part of the handout that can be run to verify which parts of your code works and which parts do not. To test your code run the `autograde.py` script using python:
-
-```bash
-> python autograde.py
-...
-
-1: Test command: C:\Users\clega\Desktop\repos\270191U025-Software-Architecture-assignment-template\build\Debug\tests.exe
-1: Test timeout computed to be: 10000000
-1:
-1: ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-1: tests.exe is a Catch v2.13.4 host application.
-1: Run with -? for options
-1:
-1: -------------------------------------------------------------------------------
-1: Addition
-1:   0 + 1 is 1
-1: -------------------------------------------------------------------------------
-1: C:\Users\clega\Desktop\repos\270191U025-Software-Architecture-assignment-template\src\tests.cpp(16)
-1: ...............................................................................
-1:
-1: C:\Users\clega\Desktop\repos\270191U025-Software-Architecture-assignment-template\src\tests.cpp(18): FAILED:
-1:   REQUIRE( sum(0, 1) )
-1: with expansion:
-1:   0
-1:
-1: ===============================================================================
-1: test cases: 1 | 1 failed
-1: assertions: 2 | 1 passed | 1 failed
-1:
-1/1 Test #1: usage_test .......................***Failed    0.02 sec
-
-0% tests passed, 1 tests failed out of 1
-
-Total Test time (real) =   0.02 sec
-
-The following tests FAILED:
-          1 - usage_test (Failed)
-
-INFO:.\autograde.py:Running Memory Checker
-UpdateCTestConfiguration  from :C:/Users/clega/Desktop/repos/270191U025-Software-Architecture-assignment-template/build/DartConfiguration.tcl
-Cannot find file: C:/Users/clega/Desktop/repos/270191U025-Software-Architecture-assignment-template/build/DartConfiguration.tcl
-   Site:
-   Build name: (empty)
-UpdateCTestConfiguration  from :C:/Users/clega/Desktop/repos/270191U025-Software-Architecture-assignment-template/build/DartConfiguration.tcl
-Cannot find file: C:/Users/clega/Desktop/repos/270191U025-Software-Architecture-assignment-template/build/DartConfiguration.tcl
-Memory check project C:/Users/clega/Desktop/repos/270191U025-Software-Architecture-assignment-template/build
-Memory checker (MemoryCheckCommand) not set, or cannot find the specified program.
-Errors while running CTest
-INFO:.\autograde.py:
-#######################################################################################################
-Final grade is: 0
-
-grade = test_passed_fraction* 70 + memory_check_passed * 20 + static_analysis_passed * 10
-0 = 0% * 70 + False * 20 + False * 10
-#######################################################################################################
-```
-
-### Implementing an abstract class
-
-Having cloned the repository you are now ready to define the abstract and implement the abstract class.
-
-1. Look at the definition of the abstract class found in `queue.hpp`. Make sure that you understand the significance of the `virtual` and `=0` keywords.
-
-```cpp
-class Queue
-{
-public:
-    virtual void enqueue(int value) = 0;
-    virtual int dequeue() = 0;
-    virtual bool empty() const = 0;
-    virtual bool full() const = 0;
-};
-```
-
-2. Implement the class using an integer array, see `queue_array.hpp`.
-
-3. Implement the class using an integer list, see `queue_linked_list.hpp`.
-
-**Do not modify the script in any way, a checksum is used to check the integrity of the file. Incorrect checksum ⟹ no pass.**
+6. Run the tests again to verify that they all pass
